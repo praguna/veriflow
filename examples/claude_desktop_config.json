@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "veriflow": {
+      "command": "python",
+      "args": ["-m", "veriflow.mcp_server"],
+      "cwd": ".../veriflow",
+      "env": {
+        "GEMINI_API_KEY": "your-key",
+        "TAVILY_API_KEY": "your-key",
+        "SERPAPI_KEY": "your-key"
+      }
+    }
+  }
+}
