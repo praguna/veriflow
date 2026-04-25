@@ -46,6 +46,7 @@ def _run_pipeline(
     file_path: str | None = None,
     url: str | None = None,
     deep: bool = False,
+    model: str = "gemini-2.5-flash",
 ) -> TrustProfile:
     """Core pipeline: Decompose → Verify (parallel) → Aggregate.
 
@@ -74,10 +75,11 @@ def _run_pipeline(
         image_bytes=image_bytes,
         mime_type=mime_type,
         exif_data=exif_data,
+        model=model,
     )
 
     if not claim_set.claims:
-        return aggregate(claim_set, [], depth="deep" if deep else "quick")
+        return aggregate(claim_set, [], depth="deep" if deep else "quick", model=model)
 
     # Step 2: Verify all claims in parallel (no LLM calls)
     with ThreadPoolExecutor(max_workers=min(len(claim_set.claims), 8)) as pool:
@@ -88,7 +90,7 @@ def _run_pipeline(
         raw_signals = [f.result() for f in futures]
 
     # Step 3: Aggregate (LLM call 2)
-    return aggregate(claim_set, raw_signals, depth="deep" if deep else "quick")
+    return aggregate(claim_set, raw_signals, depth="deep" if deep else "quick", model=model)
 
 
 def quick_verify(
@@ -97,11 +99,12 @@ def quick_verify(
     mime_type: str = "image/jpeg",
     file_path: str | None = None,
     url: str | None = None,
+    model: str = "gemini-2.5-flash",
 ) -> TrustProfile:
     """Quick verification (~6-8s). Web search + EXIF + image forensics."""
     return _run_pipeline(
         text=text, image_bytes=image_bytes, mime_type=mime_type,
-        file_path=file_path, url=url, deep=False,
+        file_path=file_path, url=url, deep=False, model=model,
     )
 
 
@@ -111,9 +114,10 @@ def deep_verify(
     mime_type: str = "image/jpeg",
     file_path: str | None = None,
     url: str | None = None,
+    model: str = "gemini-2.5-flash",
 ) -> TrustProfile:
     """Deep verification (~10-15s). Everything in quick + reverse image search."""
     return _run_pipeline(
         text=text, image_bytes=image_bytes, mime_type=mime_type,
-        file_path=file_path, url=url, deep=True,
+        file_path=file_path, url=url, deep=True, model=model,
     )

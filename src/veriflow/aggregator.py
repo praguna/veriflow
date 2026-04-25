@@ -1,6 +1,7 @@
 import json
 import os
 from google import genai
+from google.genai import types
 from veriflow.schemas import ClaimSet, RawSignals, TrustProfile
 
 _client = None
@@ -49,6 +50,7 @@ def aggregate(
     claim_set: ClaimSet,
     raw_signals: list[RawSignals],
     depth: str = "quick",
+    model: str = "gemini-2.5-flash",
 ) -> TrustProfile:
     """Aggregate all signals into a TrustProfile.
 
@@ -83,11 +85,18 @@ def aggregate(
     )
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model=model,
         contents=prompt,
+        config=types.GenerateContentConfig(response_mime_type="application/json"),
     )
 
-    result = json.loads(response.text)
+    try:
+        result = json.loads(response.text)
+    except json.JSONDecodeError:
+        # Gemini occasionally emits bare \u in URLs; escape them before parsing
+        import re
+        cleaned = re.sub(r'\\u(?![0-9a-fA-F]{4})', r'\\\\u', response.text)
+        result = json.loads(cleaned)
     return TrustProfile(
         claims=claim_set.claims,
         formula=claim_set.formula,

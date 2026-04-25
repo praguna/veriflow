@@ -43,6 +43,7 @@ def decompose(
     image_bytes: bytes | None = None,
     mime_type: str = "image/jpeg",
     exif_data: dict | None = None,
+    model: str = "gemini-2.5-flash",
 ) -> ClaimSet:
     """Decompose input into atomic claims with logical formula.
 
@@ -65,8 +66,9 @@ def decompose(
         contents.append(f"Image metadata (EXIF):\n{json.dumps(exif_data)}")
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model=model,
         contents=contents,
+        config=types.GenerateContentConfig(response_mime_type="application/json"),
     )
 
     raw = json.loads(response.text)

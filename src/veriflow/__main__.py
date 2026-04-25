@@ -1,5 +1,7 @@
 import argparse
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 from veriflow.pipeline import quick_verify, deep_verify
 
 
@@ -10,6 +12,7 @@ def main():
     parser.add_argument("--pdf", "-p", type=str, help="Path to PDF file")
     parser.add_argument("--url", "-u", type=str, help="URL to verify")
     parser.add_argument("--deep", "-d", action="store_true", help="Deep verification (includes reverse image search)")
+    parser.add_argument("--model", "-m", type=str, default="gemini-2.5-flash", help="Gemini model to use (default: gemini-2.5-flash)")
     parser.add_argument("--json", "-j", action="store_true", help="Output raw JSON")
     args = parser.parse_args()
 
@@ -23,7 +26,7 @@ def main():
             image_bytes = f.read()
 
     verify = deep_verify if args.deep else quick_verify
-    profile = verify(text=args.text, image_bytes=image_bytes, file_path=args.pdf, url=args.url)
+    profile = verify(text=args.text, image_bytes=image_bytes, file_path=args.pdf, url=args.url, model=args.model)
 
     if args.json:
         print(profile.model_dump_json(indent=2))

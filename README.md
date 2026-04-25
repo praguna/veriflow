@@ -25,6 +25,7 @@ You need:
 - `GEMINI_API_KEY` — [get one here](https://aistudio.google.com/apikey) (free)
 - `TAVILY_API_KEY` — [get one here](https://tavily.com) (free tier: 1000/month)
 - `SERPAPI_KEY` — optional, only for `--deep` mode (reverse image search)
+- `IMGBB_API_KEY` — optional, required for `--deep` mode alongside `SERPAPI_KEY`; [get one here](https://api.imgbb.com/) (free)
 
 ## Usage
 
@@ -51,7 +52,8 @@ Add to your `claude_desktop_config.json`:
       "env": {
         "GEMINI_API_KEY": "...",
         "TAVILY_API_KEY": "...",
-        "SERPAPI_KEY": "..."
+        "SERPAPI_KEY": "...",
+        "IMGBB_API_KEY": "..."
       }
     }
   }
