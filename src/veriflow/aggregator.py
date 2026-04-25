@@ -1,7 +1,8 @@
 import json
 import os
+import time
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 from veriflow.schemas import ClaimSet, RawSignals, TrustProfile
 
 _client = None
@@ -37,6 +38,20 @@ Respond with ONLY valid JSON:
   "evidence_summary": "2-3 sentence summary"
 }}
 """
+
+
+def _gemini_generate(client, model, contents, config, retries=4):
+    """Call generate_content with exponential backoff on 503/429."""
+    delay = 10
+    for attempt in range(retries):
+        try:
+            return client.models.generate_content(model=model, contents=contents, config=config)
+        except (errors.ServerError, errors.ClientError) as e:
+            if attempt == retries - 1:
+                raise
+            print(f"Gemini {e.__class__.__name__} — retrying in {delay}s...")
+            time.sleep(delay)
+            delay *= 2
 
 
 def _get_client() -> genai.Client:
@@ -84,9 +99,8 @@ def aggregate(
         cross_modal=cross_modal_str,
     )
 
-    response = client.models.generate_content(
-        model=model,
-        contents=prompt,
+    response = _gemini_generate(
+        client, model, prompt,
         config=types.GenerateContentConfig(response_mime_type="application/json"),
     )
 

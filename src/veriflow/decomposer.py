@@ -1,7 +1,8 @@
 import json
 import os
+import time
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 from veriflow.schemas import ClaimSet
 
 _client = None
@@ -29,6 +30,20 @@ Return ONLY valid JSON matching this schema:
 
 Skip opinions, questions, and vague statements. Only include claims that can be verified against external evidence.
 """
+
+
+def _gemini_generate(client, model, contents, config, retries=4):
+    """Call generate_content with exponential backoff on 503/429."""
+    delay = 10
+    for attempt in range(retries):
+        try:
+            return client.models.generate_content(model=model, contents=contents, config=config)
+        except (errors.ServerError, errors.ClientError) as e:
+            if attempt == retries - 1:
+                raise
+            print(f"Gemini {e.__class__.__name__} — retrying in {delay}s...")
+            time.sleep(delay)
+            delay *= 2
 
 
 def _get_client() -> genai.Client:
@@ -65,9 +80,8 @@ def decompose(
     if exif_data:
         contents.append(f"Image metadata (EXIF):\n{json.dumps(exif_data)}")
 
-    response = client.models.generate_content(
-        model=model,
-        contents=contents,
+    response = _gemini_generate(
+        client, model, contents,
         config=types.GenerateContentConfig(response_mime_type="application/json"),
     )
 
