@@ -11,7 +11,7 @@ mcp = FastMCP("veriflow", json_response=True)
 def veriflow_quick(
     text: str | None = None,
     image_base64: str | None = None,
-    file_path: str | None = None,
+    document_file_path: str | None = None,
     url: str | None = None,
 ) -> str:
     """Quick content verification (~6-8s). Extracts claims from text/image/PDF/URL,
@@ -19,7 +19,7 @@ def veriflow_quick(
     Returns a trust profile with verdicts, confidence, red flags, and evidence.
     Use for routine checks."""
     image_bytes = base64.b64decode(image_base64) if image_base64 else None
-    profile = quick_verify(text=text, image_bytes=image_bytes, file_path=file_path, url=url)
+    profile = quick_verify(text=text, image_bytes=image_bytes, document_file_path=document_file_path, url=url)
     return profile.model_dump_json(indent=2)
 
 
@@ -27,7 +27,7 @@ def veriflow_quick(
 def veriflow_deep(
     text: str | None = None,
     image_base64: str | None = None,
-    file_path: str | None = None,
+    document_file_path: str | None = None,
     url: str | None = None,
 ) -> str:
     """Deep content verification (~10-15s). Everything in quick_verify PLUS
@@ -35,7 +35,7 @@ def veriflow_deep(
     different context. Use when image provenance matters or user needs
     thorough verification."""
     image_bytes = base64.b64decode(image_base64) if image_base64 else None
-    profile = deep_verify(text=text, image_bytes=image_bytes, file_path=file_path, url=url)
+    profile = deep_verify(text=text, image_bytes=image_bytes, document_file_path=document_file_path, url=url)
     return profile.model_dump_json(indent=2)
 
 
@@ -43,7 +43,7 @@ def veriflow_deep(
 def veriflow_extract(
     text: str | None = None,
     image_base64: str | None = None,
-    file_path: str | None = None,
+    document_file_path: str | None = None,
     url: str | None = None,
 ) -> str:
     """Extract claims without verifying them. Returns atomic claims, logical
