@@ -64,7 +64,7 @@ Exposes three tools: `veriflow_quick` (~6-8s), `veriflow_deep` (~10-15s), `verif
 
 ## Example from chat
 
-[veriflow_deep on a recycled earthquake image](https://claude.ai/share/ed86d19a-d804-49e6-ad26-8572cc6a6a6b) — full MCP flow in Claude Desktop: tool call, trust profile, provenance hits, and red flags.
+[veriflow_deep on a recycled earthquake image](https://claude.ai/share/77e89cf0-7af2-473b-b268-663e6b5a6291) — full MCP flow in Claude Desktop: tool call, trust profile, provenance hits, and red flags.
 
 ## Example output
 
